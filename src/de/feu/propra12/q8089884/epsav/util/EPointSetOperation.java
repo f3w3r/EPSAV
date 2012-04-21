@@ -41,7 +41,7 @@ public enum EPointSetOperation {
     /**
      * Punktmenge in Datei exportieren
      */
-    EXPORT_FROM_FILE,
+    EXPORT_TO_FILE,
 
     /**
      * letzte Aenderung rueckgaengig machen

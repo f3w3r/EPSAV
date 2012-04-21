@@ -5,9 +5,11 @@
 package de.feu.propra12.q8089884.epsav.view;
 
 import java.awt.event.*;
+import java.io.File;
 import java.util.LinkedList;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument.LeafElement;
 
 import de.feu.propra12.q8089884.epsav.controller.IPointSetOperationListener;
 import de.feu.propra12.q8089884.epsav.controller.IPointSetOperationSource;
@@ -36,11 +38,6 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     private LinkedList<IPointSetOperationListener> operationListeners = new LinkedList<IPointSetOperationListener>();
 
     /**
-     * wahr, falls seit der letzten Aenderung nicht gespeichert wurde
-     */
-    private boolean unsaved = false;
-
-    /**
      * zeigt an, ob der Benutzer gerade einen Punkt verschiebt
      */
     private boolean userMovingPoint = false;
@@ -48,7 +45,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     /**
      * die Datei, in die zuletzt geschrieben wurde
      */
-    private String fileLeastSavedTo = null;
+    private File fileLeastSavedTo = null;
 
     /*----------------------------------------------------------------*/
     /* GUI-Elemente */
@@ -188,25 +185,31 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         miNew.addActionListener(this);
         mFile.add(miNew);
 
-        // --- Datei-Oeffnen
-        miOpen = new JMenuItem("Öffnen");
-        miOpen.setMnemonic(KeyEvent.VK_O);
-        miOpen.addActionListener(this);
-        mFile.add(miOpen);
+        // Menueeintraege zum Oeffnen und Speichern nur anzeigen, falls das
+        // Punktmengenalgebramodell die entsprechenden Operationen unterstuetzt,
+        // bzw. das zugehoerige Interface implementiert.
+        if (pointSetAlgebra instanceof IFilePersistent) {
+            // --- Datei-Oeffnen
+            miOpen = new JMenuItem("Öffnen");
+            miOpen.setMnemonic(KeyEvent.VK_O);
+            miOpen.addActionListener(this);
+            mFile.add(miOpen);
 
-        // --- Datei-Speichern
-        miSave = new JMenuItem("Speichern");
-        miSave.setMnemonic(KeyEvent.VK_S);
-        miSave.addActionListener(this);
-        mFile.add(miSave);
+            // --- Datei-Speichern
+            miSave = new JMenuItem("Speichern");
+            miSave.setMnemonic(KeyEvent.VK_S);
+            miSave.addActionListener(this);
+            mFile.add(miSave);
 
-        // --- Datei-SpeichernUnter
-        miSaveAs = new JMenuItem("Speichern unter...");
-        miSaveAs.setMnemonic(KeyEvent.VK_U);
-        miSaveAs.addActionListener(this);
-        mFile.add(miSaveAs);
+            // --- Datei-SpeichernUnter
+            miSaveAs = new JMenuItem("Speichern unter...");
+            miSaveAs.setMnemonic(KeyEvent.VK_U);
+            miSaveAs.addActionListener(this);
+            mFile.add(miSaveAs);
 
-        mFile.addSeparator();
+            mFile.addSeparator();
+
+        }
 
         // --- Datei-Beenden
         miQuit = new JMenuItem("Beenden");
@@ -220,21 +223,28 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         mEdit = new JMenu("Bearbeiten");
         mEdit.setMnemonic(KeyEvent.VK_E);
 
-        // --- Bearbeiten-Rueckgaengig
-        miUndo = new JMenuItem("Rückgängig");
-        miUndo.setMnemonic(KeyEvent.VK_Z);
-        miUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-                ActionEvent.CTRL_MASK));
-        miUndo.addActionListener(this);
-        mEdit.add(miUndo);
+        // Menueeintraege zum Rueckgaengigmachen und Wiederherstellen nur
+        // anzeigen, falls das Punktmengenalgebramodell die entsprechenden
+        // Operationen unterstuetzt, bzw. das zugehoerige Interface
+        // implementiert.
+        if (pointSetAlgebra instanceof IUndoableRedoable) {
+            // --- Bearbeiten-Rueckgaengig
+            miUndo = new JMenuItem("Rückgängig");
+            miUndo.setMnemonic(KeyEvent.VK_Z);
+            miUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+                    ActionEvent.CTRL_MASK));
+            miUndo.addActionListener(this);
+            mEdit.add(miUndo);
 
-        // --- Bearbeiten-Wiederherstellen
-        miRedo = new JMenuItem("Wiederherstellen");
-        miRedo.setMnemonic(KeyEvent.VK_T);
-        miRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-                ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
-        miRedo.addActionListener(this);
-        mEdit.add(miRedo);
+            // --- Bearbeiten-Wiederherstellen
+            miRedo = new JMenuItem("Wiederherstellen");
+            miRedo.setMnemonic(KeyEvent.VK_T);
+            miRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+                    ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
+            miRedo.addActionListener(this);
+            mEdit.add(miRedo);
+
+        }
 
         mb.add(mEdit);
 
@@ -295,26 +305,36 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     }
 
     /**
-     * 
+     * Die Methode zeigt einen Oeffnen-Dialog an und fragt, ob die Punkte in der
+     * Datei der Punktmenge hinzugefuegt werden sollen oder ob eine neue
+     * Punktmenge aus dieser generiert werden soll. Falls ungespeicherte
+     * Aenderungen im letzten Fall vorhanden sind, wird gefragt, ob diese vorher
+     * gespeichert werden sollen.
      */
     private void open() {
         // TODO Opendialog; fragen, ob Punkte zur bestehenden Punktmenge
         // hinzugefügt werden oder in neuer Punktmenge gespeichert werden sollen
+        // (hier dann: AskForUnsavedChanges)
 
     }
 
     /**
-     * 
+     * Die Methode speichert in der zuletzt beschriebenen Datei. Falls keine
+     * solche vorhanden ist wird SpeichernUnter aufgerufen.
      */
     private void save() {
-        // TODO nur bei ungespeicherten Punktmengen verfügbar; falls bereits
-        // gespeichert wurde in die hinterlegte Datei speichern, sonst saveAs()
-        // aufrufen
-        setUnsaved(false);
+        if ((pointSetAlgebra instanceof IFilePersistent)
+                && (fileLeastSavedTo != null)) {
+            Object[] args = { fileLeastSavedTo };
+            fireOperationEvent(new PointSetOperationEvent(this,
+                    EPointSetOperation.EXPORT_TO_FILE, args));
+        } else
+            saveAs();
     }
 
     /**
-     * 
+     * Methode zeigt einen Speichern-Dialog an und speichert die Punktmenge
+     * entsprechend in der ausgewahlten Datei.
      */
     private void saveAs() {
         // TODO speicherndialog; recentlySavedFileName setzen
@@ -331,19 +351,25 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     }
 
     /**
-     * 
+     * Methode zum Rueckgaengigmachen der letzten Aenderung, falls eine solche
+     * vorhanden ist.
      */
     private void undo() {
-        // TODO Auto-generated method stub
-
+        if ((pointSetAlgebra instanceof IUndoableRedoable)
+                && ((IUndoableRedoable) pointSetAlgebra).isUndoable())
+            fireOperationEvent(new PointSetOperationEvent(this,
+                    EPointSetOperation.UNDO, null));
     }
 
     /**
-     * 
+     * Methode zum Wiederholen der zuletzt rueckgaengig gemachten Aenderung,
+     * falls eine solche vorhanden ist.
      */
     private void redo() {
-        // TODO beim model nachfragen, ob redoable (sollte
-
+        if ((pointSetAlgebra instanceof IUndoableRedoable)
+                && ((IUndoableRedoable) pointSetAlgebra).isRedoable())
+            fireOperationEvent(new PointSetOperationEvent(this,
+                    EPointSetOperation.REDO, null));
     }
 
     /**
@@ -375,7 +401,10 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      * durch eine Operation verloren gehen wuerden.
      */
     private void askForUnsavedChanges() {
-        if (unsaved) {
+        // pruefen, ob Speichern des aktuellen Datenmodells moeglich ist undd ob
+        // nicht gespeicherte Aenderungen vorliegen
+        if ((pointSetAlgebra instanceof IFilePersistent)
+                && ((IFilePersistent) pointSetAlgebra).hasUnsavedChanges()) {
             int answer = JOptionPane.showConfirmDialog(this,
                     "Sollen die Daten gespeichert werden?", "Beenden",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -383,26 +412,6 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             if (answer == JOptionPane.YES_OPTION)
                 save();
         }
-    }
-
-    /**
-     * Die Methode liefert wahr, wenn ungepeicherte Aenderungen vorhanden sind.
-     * 
-     * @return wahr, wenn ungespeicherte Aenderungen vorhanden sind
-     */
-    private boolean isUnsaved() {
-        return unsaved;
-    }
-
-    /**
-     * Die Methode legt fest, ob ungepeicherte Aenderungen vorhanden sind.
-     * 
-     * @param unsaved
-     *            sollte bei Aenderungen auf wahr, bei Speicherungen auf falsch
-     *            gesetzt werden
-     */
-    private void setUnsaved(boolean unsaved) {
-        this.unsaved = unsaved;
     }
 
     /**
@@ -505,18 +514,25 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         // ausgeben)?!
 
         // Menueeintraege en-/disablen
+
         // save-Menueeintrag
-        if (unsaved && fileLeastSavedTo != null)
+        if ((pointSetAlgebra instanceof IFilePersistent)
+                && ((IFilePersistent) pointSetAlgebra).hasUnsavedChanges()
+                && (fileLeastSavedTo != null))
             miSave.setEnabled(true);
         else
-            miSave.setEnabled(true);
+            miSave.setEnabled(false);
+
         // undo-Menueeintrag
-        if (pointSetAlgebra.isUndoable())
+        if ((miUndo != null)
+                && ((IUndoableRedoable) pointSetAlgebra).isUndoable())
             miUndo.setEnabled(true);
         else
             miUndo.setEnabled(false);
+
         // redo-Menueeintrag
-        if (pointSetAlgebra.isRedoable())
+        if ((miRedo != null)
+                && ((IUndoableRedoable) pointSetAlgebra).isRedoable())
             miRedo.setEnabled(true);
         else
             miRedo.setEnabled(false);

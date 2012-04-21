@@ -441,6 +441,17 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     /*
      * (non-Javadoc)
      * 
+     * @see de.feu.propra12.q8089884.epsav.model.interfaces.IFilePersistent#
+     * hasUnsavedChanges()
+     */
+    @Override
+    public boolean hasUnsavedChanges() {
+        return unsaved;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see
      * de.feu.propra12.q8089884.epsav.model.interfaces.IFilePersistentPointSet
      * #importPointsFromFile (java.lang.String)
@@ -579,5 +590,31 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
         for (IPointSetChangedListener l : listeners) {
             l.firePointSetChangedEvent(e);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.feu.propra12.q8089884.epsav.model.interfaces.IUndoableRedoable#isUndoable
+     * ()
+     */
+    @Override
+    public boolean isUndoable() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.feu.propra12.q8089884.epsav.model.interfaces.IUndoableRedoable#isRedoable
+     * ()
+     */
+    @Override
+    public boolean isRedoable() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

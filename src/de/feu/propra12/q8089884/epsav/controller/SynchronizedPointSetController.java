@@ -4,6 +4,7 @@
  */
 package de.feu.propra12.q8089884.epsav.controller;
 
+import java.io.File;
 import java.util.LinkedList;
 
 import de.feu.propra12.q8089884.epsav.model.SynchronizedCompletePointSetAlgebra;
@@ -69,10 +70,10 @@ public class SynchronizedPointSetController implements
                 pointSetAlgebra.clear();
                 break;
             case IMPORT_FROM_FILE:
-                pointSetAlgebra.importPointsFromFile((String) args[0]);
+                pointSetAlgebra.importPointsFromFile((File) args[0]);
                 break;
-            case EXPORT_FROM_FILE:
-                pointSetAlgebra.exportToFile((String) args[0]);
+            case EXPORT_TO_FILE:
+                pointSetAlgebra.exportToFile((File) args[0]);
                 break;
             case UNDO:
                 pointSetAlgebra.undo();
