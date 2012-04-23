@@ -199,12 +199,14 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             miSave = new JMenuItem("Speichern");
             miSave.setMnemonic(KeyEvent.VK_S);
             miSave.addActionListener(this);
+            miSave.setEnabled(false);
             mFile.add(miSave);
 
             // --- Datei-SpeichernUnter
             miSaveAs = new JMenuItem("Speichern unter...");
             miSaveAs.setMnemonic(KeyEvent.VK_U);
             miSaveAs.addActionListener(this);
+            miSaveAs.setEnabled(false);
             mFile.add(miSaveAs);
 
             mFile.addSeparator();
@@ -234,6 +236,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             miUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
                     ActionEvent.CTRL_MASK));
             miUndo.addActionListener(this);
+            miUndo.setEnabled(false);
             mEdit.add(miUndo);
 
             // --- Bearbeiten-Wiederherstellen
@@ -242,6 +245,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             miRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
                     ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
             miRedo.addActionListener(this);
+            miRedo.setEnabled(false);
             mEdit.add(miRedo);
 
         }
