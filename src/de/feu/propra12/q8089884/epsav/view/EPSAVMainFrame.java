@@ -311,6 +311,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         // Punktmenge leeren
         fireOperationEvent(new PointSetOperationEvent(this,
                 EPointSetOperation.CLEAR_POINTSET, null));
+        fileLeastSavedTo = null;
         showPointSetAlgebraPanel();
     }
 
@@ -322,7 +323,6 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      * gespeichert werden sollen.
      */
     private void open() {
-
         // bei nicht leerer Punktmenge fragen, ob die Punkte in der Datei
         // der Punktmenge hinzugefuegt werden sollen
         if (!pointSetAlgebra.isEmpty()) {

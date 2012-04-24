@@ -139,11 +139,12 @@ public class Point implements Comparable<Point> {
      */
     @Override
     public int compareTo(Point o) {
+        // primary order on xPos
         if (xPos < o.xPos)
             return -1;
         else if (xPos > o.xPos)
             return 1;
-        // secondary order on yPos, if equal xPos
+        // secondary order on yPos
         else {
             if (yPos < o.yPos)
                 return -1;
@@ -152,5 +153,27 @@ public class Point implements Comparable<Point> {
             else
                 return 0;
         }
+    }
+
+    /**
+     * Die Methode parst einen uebergebenen String in einen Punkt.
+     * 
+     * @param s
+     *            der zu parsende String
+     * @return der Punkt
+     * @throws PointFormatException
+     *             wird geworfen, wenn der String keine guetige
+     *             Punktformatierung aufweist
+     */
+    public static Point parsePoint(String s) throws PointFormatException {
+        Point result = null;
+        String[] point = s.split(" ");
+        try {
+            result = new Point(Integer.parseInt(point[0]),
+                    Integer.parseInt(point[1]));
+        } catch (NumberFormatException e) {
+            throw new PointFormatException();
+        }
+        return result;
     }
 }

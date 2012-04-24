@@ -5,8 +5,7 @@
  */
 package de.feu.propra12.q8089884.epsav.model;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -285,6 +284,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     @Override
     public synchronized void addPoint(Point p) {
         pointSet.add(p);
+        unsaved = true;
         fireChangedEvent(new PointSetChangedEvent(this,
                 EPointSetChangedMode.POINT_ADDED));
     }
@@ -316,8 +316,6 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
             for (Point point : points) {
                 pointSet.add(point);
             }
-            fireChangedEvent(new PointSetChangedEvent(this,
-                    EPointSetChangedMode.POINT_ADDED));
         }
     }
 
@@ -336,6 +334,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
         if (contains(p) && !contains(np)) {
             removePoint(p);
             addPoint(np);
+            unsaved = true;
             fireChangedEvent(new PointSetChangedEvent(this,
                     EPointSetChangedMode.POINT_MOVED));
             // ein direktes Bewegen des Punktes ist nicht moeglich, da die
@@ -381,10 +380,11 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      */
     @Override
     public synchronized void removePoint(Point p) throws PointSetException {
-        if (p != null && pointSet.remove(p))
+        if (p != null && pointSet.remove(p)) {
+            unsaved = true;
             fireChangedEvent(new PointSetChangedEvent(this,
                     EPointSetChangedMode.POINT_REMOVED));
-        else
+        } else
             throw new PointSetException(
                     "Der übergebene Punkt liegt nicht in der Punktmenge!");
     }
@@ -410,6 +410,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     @Override
     public synchronized void clear() {
         pointSet.clear();
+        unsaved = false;
         fireChangedEvent(new PointSetChangedEvent(this,
                 EPointSetChangedMode.POINTSET_CLEARED));
     }
@@ -454,6 +455,38 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      * 
      * @see
      * de.feu.propra12.q8089884.epsav.model.interfaces.IFilePersistentPointSet
+     * #importPointsFromFile (java.io.File)
+     */
+    @Override
+    public synchronized void importPointsFromFile(File file) throws IOException {
+        try {
+            // Datei mittels BufferedReader zeilenweise einlesen
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(file), "Cp1252"));
+            String line = reader.readLine();
+            while (line != null) {
+                // pruefen ob Zeile gueltiges Punktformat hat
+                try {
+                    // Punkt parsen und einfuegen
+                    Point p = Point.parsePoint(line);
+                    addPoint(p);
+                } catch (PointFormatException e) {
+                    System.out.println("Die Zeile '" + line
+                            + "' weist kein gueltiges Punktformat auf!");
+                }
+                line = reader.readLine();
+            }
+        } catch (Exception e) {
+            System.out.println("Fehler beim Lesen der Datei!");
+        }
+        unsaved = false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.feu.propra12.q8089884.epsav.model.interfaces.IFilePersistentPointSet
      * #importPointsFromFile (java.lang.String)
      */
     @Override
@@ -467,12 +500,20 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      * 
      * @see
      * de.feu.propra12.q8089884.epsav.model.interfaces.IFilePersistentPointSet
-     * #importPointsFromFile (java.io.File)
+     * #exportToFile(java .io.File)
      */
     @Override
-    public synchronized void importPointsFromFile(File file) throws IOException {
-        // TODO Auto-generated method stub
-
+    public synchronized void exportToFile(File file) throws IOException {
+        try {
+            // Datei mittels BufferedWriter schreiben
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(file), "Cp1252"));
+            writer.write(toString());
+            writer.flush();
+        } catch (Exception e) {
+            System.out.println("Fehler beim Schreiben der Datei!");
+        }
+        unsaved = false;
     }
 
     /*
@@ -485,19 +526,6 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     @Override
     public synchronized void exportToFile(String filename) throws IOException {
         exportToFile(new File(filename));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.feu.propra12.q8089884.epsav.model.interfaces.IFilePersistentPointSet
-     * #exportToFile(java .io.File)
-     */
-    @Override
-    public synchronized void exportToFile(File file) throws IOException {
-        // TODO Auto-generated method stub
-        unsaved = false;
     }
 
     /*

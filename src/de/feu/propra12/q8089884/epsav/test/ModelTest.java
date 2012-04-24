@@ -4,8 +4,7 @@
 package de.feu.propra12.q8089884.epsav.test;
 
 import de.feu.propra12.q8089884.epsav.model.SynchronizedCompletePointSetAlgebra;
-import de.feu.propra12.q8089884.epsav.util.Point;
-import de.feu.propra12.q8089884.epsav.util.PointSetException;
+import de.feu.propra12.q8089884.epsav.util.*;
 
 /**
  * Die Klasse regelt das Testen des Datenmodells. Dazu instanziiert sie die
@@ -17,6 +16,20 @@ import de.feu.propra12.q8089884.epsav.util.PointSetException;
 public class ModelTest {
 
     public static void main(String[] args) {
+
+        // PointParser-Test
+        System.out.println("PointParser-Test:");
+        String validPointString = "12 -50";
+        Point point = Point.parsePoint(validPointString);
+        System.out.println(point);
+        String invalidPointString = "ewvrwrvv";
+        try {
+            point = Point.parsePoint(invalidPointString);
+            System.out.println(point);
+        } catch (PointFormatException e) {
+            System.out.println(e);
+        }
+        System.out.println();
 
         // PointSetAlgebra erzeugen
         SynchronizedCompletePointSetAlgebra psa = new SynchronizedCompletePointSetAlgebra();
