@@ -459,8 +459,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     @Override
     public synchronized void importPointsFromFile(String filename)
             throws IOException {
-        // TODO Auto-generated method stub
-
+        importPointsFromFile(new File(filename));
     }
 
     /*
@@ -485,8 +484,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      */
     @Override
     public synchronized void exportToFile(String filename) throws IOException {
-        // TODO Auto-generated method stub
-
+        exportToFile(new File(filename));
     }
 
     /*
@@ -499,7 +497,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     @Override
     public synchronized void exportToFile(File file) throws IOException {
         // TODO Auto-generated method stub
-
+        unsaved = false;
     }
 
     /*

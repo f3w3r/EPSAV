@@ -79,15 +79,17 @@ public class PointSetAlgebraPanel extends JPanel implements
      */
     private void drawPointSet(Graphics2D g2) {
         // alle Punkte zeichnen
-        g2.setColor(Color.BLACK);
         for (Point p : pointSetAlgebra.getAllPoints()) {
-            g2.fillOval(p.getxPos() - 3, p.getyPos() - 3, 7, 7);
-        }
-        // den ausgewaehlten Punkt rot darstellen
-        if (selectedPoint != null) {
-            g2.setColor(Color.BLUE);
-            g2.fillOval(selectedPoint.getxPos() - 5,
-                    selectedPoint.getyPos() - 5, 11, 11);
+            if (p.equals(selectedPoint)) {
+                // den ausgewaehlten Punkt groesser und blau darstellen
+                g2.setColor(Color.BLUE);
+                g2.fillOval(selectedPoint.getxPos() - 5,
+                        selectedPoint.getyPos() - 5, 11, 11);
+            } else {
+                g2.setColor(Color.BLACK);
+
+                g2.fillOval(p.getxPos() - 3, p.getyPos() - 3, 7, 7);
+            }
         }
     }
 

@@ -9,7 +9,8 @@ import java.io.File;
 import java.util.LinkedList;
 
 import javax.swing.*;
-import javax.swing.text.AbstractDocument.LeafElement;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.feu.propra12.q8089884.epsav.controller.IPointSetOperationListener;
 import de.feu.propra12.q8089884.epsav.controller.IPointSetOperationSource;
@@ -300,12 +301,17 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     }
 
     /**
-     * 
+     * Die Methode schickt dem Controller ein Kommando zum Leeren der
+     * Punktmenge; falls ungespeicherte Aenderungen vorliegen wird der Benutzer
+     * gefragt, ob diese gespechert werden sollen.
      */
     private void newPointSet() {
-        // TODO bei vorhandener (nicht gespeicherter) Punktmenge questiondialog
-        // "wirklich verwerfen??"
-
+        // auf ungespeicherte Aenderungen pruefen
+        askForUnsavedChanges();
+        // Punktmenge leeren
+        fireOperationEvent(new PointSetOperationEvent(this,
+                EPointSetOperation.CLEAR_POINTSET, null));
+        showPointSetAlgebraPanel();
     }
 
     /**
@@ -316,10 +322,43 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      * gespeichert werden sollen.
      */
     private void open() {
-        // TODO Opendialog; fragen, ob Punkte zur bestehenden Punktmenge
-        // hinzugefügt werden oder in neuer Punktmenge gespeichert werden sollen
-        // (hier dann: AskForUnsavedChanges)
 
+        // bei nicht leerer Punktmenge fragen, ob die Punkte in der Datei
+        // der Punktmenge hinzugefuegt werden sollen
+        if (!pointSetAlgebra.isEmpty()) {
+            int addPointsToSet = JOptionPane
+                    .showConfirmDialog(
+                            this,
+                            "Sollen die Punkte aus der Datei der bestehenden Punktmenge hinzugefuegt werden?",
+                            "Punktmenge erweitern?",
+                            JOptionPane.YES_NO_CANCEL_OPTION);
+            // bei "Abbrechen" oeffnen-Methode verlassen
+            if (addPointsToSet == JOptionPane.CANCEL_OPTION)
+                return;
+
+            // falls Punkte nicht hinzugefuegt werden sollen: neue Punktmenge
+            // anlegen
+            else if (addPointsToSet == JOptionPane.NO_OPTION)
+                newPointSet();
+        }
+
+        // Dialog zur Dateiauswahl anzeigen
+        JFileChooser fileChooser = new JFileChooser();
+        // Filter für points-Dateien verwenden
+        FileFilter fileFilter = new FileNameExtensionFilter("Points-Dateien",
+                "points");
+        fileChooser.setFileFilter(fileFilter);
+        fileChooser.showOpenDialog(this);
+        File f = fileChooser.getSelectedFile();
+        // leere Auswahl abfangen
+        if (f != null) {
+            Object[] args = { f };
+            fireOperationEvent(new PointSetOperationEvent(this,
+                    EPointSetOperation.IMPORT_FROM_FILE, args));
+            // Setzen der zuletzt genutzten Datei
+            fileLeastSavedTo = f;
+        }
+        showPointSetAlgebraPanel();
     }
 
     /**
@@ -341,8 +380,22 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      * entsprechend in der ausgewahlten Datei.
      */
     private void saveAs() {
-        // TODO speicherndialog; recentlySavedFileName setzen
-
+        // Dialog zur Dateiauswahl anzeigen
+        JFileChooser fileChooser = new JFileChooser();
+        // Filter für points-Dateien verwenden
+        FileFilter fileFilter = new FileNameExtensionFilter("Points-Dateien",
+                "points");
+        fileChooser.setFileFilter(fileFilter);
+        fileChooser.showSaveDialog(this);
+        File f = fileChooser.getSelectedFile();
+        // leere Auswahl abfangen
+        if (f != null) {
+            Object[] args = { f };
+            fireOperationEvent(new PointSetOperationEvent(this,
+                    EPointSetOperation.EXPORT_TO_FILE, args));
+            // Setzen der zuletzt genutzten Datei
+            fileLeastSavedTo = f;
+        }
     }
 
     /**
@@ -405,13 +458,16 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      * durch eine Operation verloren gehen wuerden.
      */
     private void askForUnsavedChanges() {
-        // pruefen, ob Speichern des aktuellen Datenmodells moeglich ist undd ob
+        // pruefen, ob Speichern des aktuellen Datenmodells moeglich ist und ob
         // nicht gespeicherte Aenderungen vorliegen
         if ((pointSetAlgebra instanceof IFilePersistent)
                 && ((IFilePersistent) pointSetAlgebra).hasUnsavedChanges()) {
-            int answer = JOptionPane.showConfirmDialog(this,
-                    "Sollen die Daten gespeichert werden?", "Beenden",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            int answer = JOptionPane
+                    .showConfirmDialog(
+                            this,
+                            "Sollen die Änderungen an der bestehenden Punktmenge gespeichert werden?",
+                            "Punktmenge speichern?", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
             // bei "Ja" speichern
             if (answer == JOptionPane.YES_OPTION)
                 save();
@@ -526,6 +582,13 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             miSave.setEnabled(true);
         else
             miSave.setEnabled(false);
+
+        // saveAs-Menueeintrag
+        if ((pointSetAlgebra instanceof IFilePersistent)
+                && !pointSetAlgebra.isEmpty())
+            miSaveAs.setEnabled(true);
+        else
+            miSaveAs.setEnabled(false);
 
         // undo-Menueeintrag
         if ((miUndo != null)

@@ -43,8 +43,6 @@ public class EPSAV {
         // Beobachtermuster zwischen Controller und View etablieren
         mainFrame.addPointSetOperationListener(pointSetController);
 
-        // Punktmengenpanel anzeigen
-        mainFrame.showPointSetAlgebraPanel();
     }
 
 }
