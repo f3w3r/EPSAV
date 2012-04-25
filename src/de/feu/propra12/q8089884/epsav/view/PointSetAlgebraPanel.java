@@ -31,6 +31,18 @@ public class PointSetAlgebraPanel extends JPanel implements
     private Point selectedPoint = null;
 
     /**
+     * der Abstand zwischen ausgewahltem Punkt und Mauszeiger auf der x-Achse
+     * --> P.x - Cursor.x
+     */
+    private int dX = 0;
+
+    /**
+     * der Abstand zwischen ausgewahltem Punkt und Mauszeiger auf der x-Achse
+     * --> P.y - Cursor.y
+     */
+    private int dY = 0;
+
+    /**
      * Der Konstruktor fuer eine Punktmengenanzeige; ein Datenmodell wird als
      * Parameter uebergeben.
      * 
@@ -180,12 +192,56 @@ public class PointSetAlgebraPanel extends JPanel implements
     }
 
     /**
-     * Die Methode setzt den aktuelle ausgewaehlten Punkt.
+     * Die Methode setzt den aktuell ausgewaehlten Punkt.
      * 
      * @param selectedPoint
      *            der ausgewaehlte Punkt
      */
     public void setSelectedPoint(Point selectedPoint) {
         this.selectedPoint = selectedPoint;
+    }
+
+    /**
+     * Die Methode gibt den Abstand zwischen dem ausgewahlten Punkt und dem
+     * Mauszeiger auf der x-Achse zurueck.
+     * 
+     * @return der Abstand zwischen ausgewaehltem Punkt und Mauszeiger auf der
+     *         x-Achse
+     */
+    public int getdX() {
+        return dX;
+    }
+
+    /**
+     * Die Methode setzt den Abstand zwischen dem ausgewahlten Punkt und dem
+     * Mauszeiger auf der x-Achse.
+     * 
+     * @param dX
+     *            der Abstand
+     */
+    public void setdX(int dX) {
+        this.dX = dX;
+    }
+
+    /**
+     * Die Methode gibt den Abstand zwischen dem ausgewahlten Punkt und dem
+     * Mauszeiger auf der y-Achse zurueck.
+     * 
+     * @return der Abstand zwischen ausgewaehltem Punkt und Mauszeiger auf der
+     *         y-Achse
+     */
+    public int getdY() {
+        return dY;
+    }
+
+    /**
+     * Die Methode setzt den Abstand zwischen dem ausgewahlten Punkt und dem
+     * Mauszeiger auf der y-Achse.
+     * 
+     * @param dY
+     *            der Abstand
+     */
+    public void setdY(int dY) {
+        this.dY = dY;
     }
 }

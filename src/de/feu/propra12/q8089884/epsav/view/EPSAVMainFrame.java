@@ -26,7 +26,7 @@ import de.feu.propra12.q8089884.epsav.util.*;
  */
 public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         IPointSetAlgebraView, IPointSetChangedListener, ActionListener,
-        MouseListener, KeyListener {
+        MouseListener, MouseMotionListener, KeyListener {
 
     /**
      * die darzustellende Punktmenge
@@ -157,6 +157,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         // Zeichenflaeche fuer Punktmengenalgebra initialisieren
         pPointSetAlgebra = new PointSetAlgebraPanel(pointSetAlgebra);
         pPointSetAlgebra.addMouseListener(this);
+        pPointSetAlgebra.addMouseMotionListener(this);
         pPointSetAlgebra.addKeyListener(this);
 
         // Begruessungsanzeige initialisieren und anzeigen
@@ -619,15 +620,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             pPointSetAlgebra.requestFocusInWindow();
 
             int clickCount = e.getClickCount();
-            // bei Klick naechsten Punkt in angegebenem Radius auswaehlen
-            if (clickCount == 1) {
-                pPointSetAlgebra
-                        .setSelectedPoint(((IROPointSetAlgebra) pPointSetAlgebra
-                                .getPointSetAlgebra())
-                                .getNearestPointWithinRange(e.getX(), e.getY(),
-                                        5));
-                pPointSetAlgebra.refresh();
-            }
+
             // bei Doppelklick: neuen Punkt an Cursor-Position erzeugen
             if (clickCount == 2) {
                 Object[] args = { new Point(e.getX(), e.getY()) };
@@ -635,6 +628,95 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
                         EPointSetOperation.ADD_POINT, args));
                 pPointSetAlgebra.setSelectedPoint(null);
             }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     */
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (e.getSource() == pPointSetAlgebra) {
+            pPointSetAlgebra.requestFocusInWindow();
+            int cursorX = e.getX();
+            int cursorY = e.getY();
+
+            // bei Klick naechsten Punkt in angegebenem Radius auswaehlen
+            Point selectedPoint = pointSetAlgebra.getNearestPointWithinRange(
+                    cursorX, cursorY, 5);
+            pPointSetAlgebra.setSelectedPoint(selectedPoint);
+
+            // falls ein Punkt ausgewaehlt wurde:
+            // den x- und y-Achsenabstand zwischen ausgewaehltem Punkt und
+            // Mauszeiger hinterlegen; Punktbewegung ermoeglichen
+            if (selectedPoint != null) {
+                pPointSetAlgebra.setdX(selectedPoint.getxPos() - cursorX);
+                pPointSetAlgebra.setdY(selectedPoint.getyPos() - cursorY);
+                userMovingPoint = true;
+            }
+            refresh();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        pPointSetAlgebra.setdX(0);
+        pPointSetAlgebra.setdY(0);
+        userMovingPoint = false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent
+     * )
+     */
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (userMovingPoint) {
+            // neue Punktposition aus alter und Mauszeigerposition erzeugen
+            Point newPos = new Point(e.getX() + pPointSetAlgebra.getdX(),
+                    e.getY() + pPointSetAlgebra.getdY());
+
+            // Überschreiben bestehender Punkte beim Verschieben vermeiden
+            if (!pointSetAlgebra.contains(newPos)) {
+                // Verschiebekommando an Controller senden
+                Object[] args = { pPointSetAlgebra.getSelectedPoint(), newPos };
+                fireOperationEvent(new PointSetOperationEvent(this,
+                        EPointSetOperation.MOVE_POINT, args));
+                // ausgewaehlten Punkt verschieben
+                pPointSetAlgebra.getSelectedPoint().moveTo(newPos.getxPos(),
+                        newPos.getyPos());
+                refresh();
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+     */
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        // bei Backspace- oder Entf-Tasteneingabe wird der ausgewaehlte Punkt
+        // (falls vorhanden) geloescht
+        if (((keyCode == KeyEvent.VK_BACK_SPACE) || (keyCode == KeyEvent.VK_DELETE))
+                && (pPointSetAlgebra.getSelectedPoint() != null)) {
+            Object[] args = { pPointSetAlgebra.getSelectedPoint() };
+            fireOperationEvent(new PointSetOperationEvent(this,
+                    EPointSetOperation.REMOVE_POINT, args));
+            pPointSetAlgebra.setSelectedPoint(null);
         }
     }
 
@@ -661,41 +743,12 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     /*
      * (non-Javadoc)
      * 
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-     */
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
-     * java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     * java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     @Override
-    public void mouseReleased(MouseEvent e) {
+    public void mouseMoved(MouseEvent e) {
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-     */
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        // bei Backspace- oder Entf-Tasteneingabe wird der ausgewaehlte Punkt
-        // (falls vorhanden) geloescht
-        if (((keyCode == KeyEvent.VK_BACK_SPACE) || (keyCode == KeyEvent.VK_DELETE))
-                && (pPointSetAlgebra.getSelectedPoint() != null)) {
-            Object[] args = { pPointSetAlgebra.getSelectedPoint() };
-            fireOperationEvent(new PointSetOperationEvent(this,
-                    EPointSetOperation.REMOVE_POINT, args));
-            pPointSetAlgebra.setSelectedPoint(null);
-        }
     }
 
     /*
@@ -705,6 +758,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      */
     @Override
     public void keyReleased(KeyEvent e) {
+
     }
 
     /*
@@ -714,5 +768,6 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      */
     @Override
     public void keyTyped(KeyEvent e) {
+
     }
 }

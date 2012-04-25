@@ -329,17 +329,17 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      */
     @Override
     public void movePoint(Point p, Point np) throws PointSetException {
-        // falls der Punkt Teil der Punktmenge ist wird dieser geloescht und ein
-        // Punkt mit den neuen Koordinaten zur Punktmenge hinzugefuegt
+        // Falls der Punkt Teil der Punktmenge ist wird diser zuerst aus der
+        // Punktmenge entfernt, dann an die neuen Koordinaten bewegt und
+        // anschließend wieder in die Punktmenge eingefuegt. Dies geschieht um
+        // die Integritaet der vorsortierten Datenstruktur zu gewaehleisten.
         if (contains(p) && !contains(np)) {
             removePoint(p);
-            addPoint(np);
+            p.moveTo(np.getxPos(), np.getyPos());
+            addPoint(p);
             unsaved = true;
             fireChangedEvent(new PointSetChangedEvent(this,
                     EPointSetChangedMode.POINT_MOVED));
-            // ein direktes Bewegen des Punktes ist nicht moeglich, da die
-            // Datenstruktur der Punktmenge vorsortiert speichert und diese
-            // Bedingung sonst verletzt wuerde!
         } else
             throw new PointSetException(
                     "Der übergebene Punkt liegt nicht in der Punktmenge!");
