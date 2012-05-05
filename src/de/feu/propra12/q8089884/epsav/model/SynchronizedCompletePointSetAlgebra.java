@@ -6,8 +6,7 @@
 package de.feu.propra12.q8089884.epsav.model;
 
 import java.io.*;
-import java.util.LinkedList;
-import java.util.TreeSet;
+import java.util.*;
 
 import de.feu.propra12.q8089884.epsav.model.interfaces.*;
 import de.feu.propra12.q8089884.epsav.util.*;
@@ -221,8 +220,76 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      */
     @Override
     public synchronized Point[] getContourPolygon() {
-        // TODO Auto-generated method stub
-        return null;
+        Point[] points = pointSet.toArray(new Point[0]);
+
+        for (Point point : points) {
+            System.out.println(point);
+        }
+        System.out.println();
+        // Konturpolygon nur berechnen, falls mehr als 3 Punkte in der Menge
+        // enthalten sind
+        if (points.length > 3) {
+
+            // Konturabschnitt Westen-Norden-Osten
+            TreeSet<Point> wno = new TreeSet<Point>();
+            // Konturabschnitt Westen-Sueden-Osten
+            TreeSet<Point> wso = new TreeSet<Point>();
+
+            // Index des letzten Elements
+            int iLast = points.length - 1;
+
+            // Punkt mit der temporaer groessten y-Koordinate von links kommend
+            Point leftMaxY = points[0];
+            // Punkt mit der temporaer kleinsten y-Koordinate von links kommend
+            Point leftMinY = points[0];
+            // Punkt mit der temporaer groessten y-Koordinate von rechts kommend
+            Point rightMaxY = points[iLast];
+            // Punkt mit der temporaer kleinsten y-Koordinate von rechts kommend
+            Point rightMinY = points[iLast];
+
+            // Punkte W und O entsprechend einfuegen
+            wno.add(leftMinY);
+            wso.add(rightMaxY);
+
+            for (int i = 1; i < iLast; i++) {
+
+                if (points[i].getyPos() <= leftMinY.getyPos()) {
+                    leftMinY = points[i];
+                    wno.add(leftMinY);
+                }
+                if (points[iLast - i].getyPos() <= rightMinY.getyPos()) {
+                    rightMinY = points[iLast - i];
+                    wno.add(rightMinY);
+                }
+                if (points[i].getyPos() >= leftMaxY.getyPos()) {
+                    leftMaxY = points[i];
+                    wso.add(leftMaxY);
+                }
+                if (points[iLast - 1].getyPos() >= rightMaxY.getyPos()) {
+                    rightMaxY = points[iLast - i];
+                    wso.add(rightMaxY);
+                }
+            }
+
+            // oberen und unteren Teil des Konturpolygons aneinander haengen
+            LinkedList<Point> result = new LinkedList<Point>();
+            for (Iterator<Point> iterator = wno.iterator(); iterator.hasNext();) {
+                result.add(iterator.next());
+            }
+            for (Iterator<Point> iterator = wso.descendingIterator(); iterator
+                    .hasNext();) {
+                result.add(iterator.next());
+            }
+
+            System.out.println("WNO:");
+            System.out.println(wno);
+            System.out.println("WSO:");
+            System.out.println(wso);
+
+            return result.toArray(new Point[0]);
+
+        } else
+            return points;
     }
 
     /*

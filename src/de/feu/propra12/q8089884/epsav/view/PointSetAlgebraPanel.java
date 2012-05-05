@@ -99,7 +99,6 @@ public class PointSetAlgebraPanel extends JPanel implements
                         selectedPoint.getyPos() - 5, 11, 11);
             } else {
                 g2.setColor(Color.BLACK);
-
                 g2.fillOval(p.getxPos() - 3, p.getyPos() - 3, 7, 7);
             }
         }
@@ -112,9 +111,23 @@ public class PointSetAlgebraPanel extends JPanel implements
      *            das Grafikobjekt
      */
     private void drawConvexHull(Graphics2D g2) {
-        // TODO Auto-generated method stub
-        // TODO zum Zeichnen wäre eine doppelt verkettete Liste von Punkten am
-        // besten/einfachsten
+        Point[] convexHull = pointSetAlgebra.getContourPolygon();
+        // Punkte des Polygons verbinden
+        if (convexHull != null)
+            for (int i = 0; i < convexHull.length - 1; i++) {
+                g2.setColor(Color.BLACK);
+                g2.drawLine(convexHull[i].getxPos(), convexHull[i].getyPos(),
+                        convexHull[i + 1].getxPos(),
+                        convexHull[i + 1].getyPos());
+
+                // Polygon schliessen
+                if (convexHull.length > 2) {
+                    g2.setColor(Color.BLACK);
+                    g2.drawLine(convexHull[convexHull.length - 1].getxPos(),
+                            convexHull[convexHull.length - 1].getyPos(),
+                            convexHull[0].getxPos(), convexHull[0].getyPos());
+                }
+            }
         // TODO wenn gerade ein Punkt bewegt wird, sollen dieser, sowie die zu
         // ihm führenden Kanten, rot dargestellt werden (userMovingPoint)
     }

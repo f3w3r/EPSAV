@@ -163,11 +163,15 @@ public class ModelTest {
 
         // TODO REDO
 
-        // TODO Punkte aus Datei einlesen
-
-        // TODO Punkte in Datei speichern
-
         // TODO Operationen auf Punktmengen testen
+
+        // Konturpolygon ausgeben
+        Point[] points2 = { new Point(0, 0), new Point(10, 10), new Point(10, 0), new Point(0, 20), new Point(0, 30) };
+        psa.addPoints(points2);
+        System.out.println("Konturpolygon:");
+        for (Point p : psa.getContourPolygon()) {
+            System.out.println(p);
+        }
 
     }
 }

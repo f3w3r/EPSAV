@@ -52,7 +52,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     /* GUI-Elemente */
     /*----------------------------------------------------------------*/
 
-    private final String VERSION = "v0.1 beta";
+    private final String VERSION = "1.0.0 beta";
 
     /**
      * Begruessungsanzeige
