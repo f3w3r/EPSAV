@@ -222,20 +222,19 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     public synchronized Point[] getContourPolygon() {
         Point[] points = pointSet.toArray(new Point[0]);
 
-        for (Point point : points) {
-            System.out.println(point);
-        }
-        System.out.println();
-        // Konturpolygon nur berechnen, falls mehr als 3 Punkte in der Menge
+        // Konturpolygon nur "berechnen", falls mehr als 3 Punkte in der Menge
         // enthalten sind
         if (points.length > 3) {
+
+            // Konturabschnitte in vorsortierter Datenstruktur speichern, um
+            // doppelte Punkte zu vermeiden
 
             // Konturabschnitt Westen-Norden-Osten
             TreeSet<Point> wno = new TreeSet<Point>();
             // Konturabschnitt Westen-Sueden-Osten
             TreeSet<Point> wso = new TreeSet<Point>();
 
-            // Index des letzten Elements
+            // Index des letzten Elements der Punktmenge
             int iLast = points.length - 1;
 
             // Punkt mit der temporaer groessten y-Koordinate von links kommend
@@ -251,6 +250,11 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
             wno.add(leftMinY);
             wso.add(rightMaxY);
 
+            // TODO evtl. Performanz verbessern durch Einsatz einer
+            // while-Schleife mit Abbruchbedingung "Faeden ueberlappen"...
+
+            // "Faden" von beiden Seiten an die Punktmenge "pusten"; neue
+            // max-/min-Y Punkte in Konturlinien einfuegen
             for (int i = 1; i < iLast; i++) {
 
                 if (points[i].getyPos() <= leftMinY.getyPos()) {
@@ -281,11 +285,6 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
                 result.add(iterator.next());
             }
 
-            System.out.println("WNO:");
-            System.out.println(wno);
-            System.out.println("WSO:");
-            System.out.println(wso);
-
             return result.toArray(new Point[0]);
 
         } else
@@ -301,8 +300,28 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      */
     @Override
     public synchronized Point[] getConvexHull() {
-        // TODO Auto-generated method stub
+
         return null;
+    }
+
+    /**
+     * Die Methode berechnet die Determinante der Punkte A, B und C. Der
+     * Rückgabewert ist > 0 wenn C links, < 0 wenn C rechts und = 0 wenn C auf
+     * der Geraden von A nach B liegt.
+     * 
+     * @param a
+     *            der Punkt A
+     * @param b
+     *            der Punkt B
+     * @param c
+     *            der Punkt C
+     * @return > 0 wenn C links, < 0 wenn C rechts und = 0 wenn C auf der
+     *         Geraden von A nach B liegt
+     */
+    private long determinantABC(Point a, Point b, Point c) {
+        return ((c.getxPos() - a.getxPos()) * (c.getyPos() + a.getyPos()))
+                + ((b.getxPos() - c.getxPos()) * (b.getyPos() + c.getyPos()))
+                + ((a.getxPos() - b.getxPos()) * (a.getyPos() + b.getyPos()));
     }
 
     /*
