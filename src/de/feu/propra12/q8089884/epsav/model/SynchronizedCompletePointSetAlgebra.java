@@ -269,7 +269,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
                     leftMaxY = points[i];
                     wso.add(leftMaxY);
                 }
-                if (points[iLast - 1].getyPos() >= rightMaxY.getyPos()) {
+                if (points[iLast - i].getyPos() >= rightMaxY.getyPos()) {
                     rightMaxY = points[iLast - i];
                     wso.add(rightMaxY);
                 }
@@ -300,8 +300,105 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      */
     @Override
     public synchronized Point[] getConvexHull() {
+        Point[] contourPolygon = getContourPolygon();
 
-        return null;
+        // konvexe Huelle nur "berechnen", falls mehr als 3 Punkte das
+        // Konturpolygon bilden
+        if (contourPolygon.length > 3) {
+
+            // Indizes der Extrempunkte feststellen
+            int iWest = 0;
+            int iNorth = 0;
+            int iEast = 0;
+            int iSouth = 0;
+
+            for (int i = 1; i < contourPolygon.length; i++) {
+                if (contourPolygon[i].getyPos() <= contourPolygon[iNorth]
+                        .getyPos())
+                    iNorth = i;
+                if (contourPolygon[i].getyPos() >= contourPolygon[iSouth]
+                        .getyPos())
+                    iSouth = i;
+                if (contourPolygon[i].getxPos() >= contourPolygon[iEast]
+                        .getxPos())
+                    iEast = i;
+            }
+
+            System.out.println("konturpolygon:");
+            for (int i = 0; i < contourPolygon.length; i++) {
+                System.out.println(contourPolygon[i]);
+            }
+
+            System.out.println("west: " + contourPolygon[iWest]);
+            System.out.println("nord: " + contourPolygon[iNorth]);
+            System.out.println("ost: " + contourPolygon[iEast]);
+            System.out.println("sued: " + contourPolygon[iSouth]);
+
+            // "Dellen" aus den Polygonabschnitten entfernen
+            eliminateCornersFromPolygonIntercept(contourPolygon, iWest, iNorth);
+            eliminateCornersFromPolygonIntercept(contourPolygon, iNorth, iEast);
+            eliminateCornersFromPolygonIntercept(contourPolygon, iEast, iSouth);
+            eliminateCornersFromPolygonIntercept(contourPolygon, iSouth, iWest);
+
+            // verbliebene Punkte in Liste erfassen und als Array zurueckgeben
+            LinkedList<Point> result = new LinkedList<Point>();
+            for (int i = 0; i < contourPolygon.length; i++) {
+                if (contourPolygon[i] != null)
+                    result.add(contourPolygon[i]);
+            }
+            return result.toArray(new Point[0]);
+
+        } else
+            return contourPolygon;
+    }
+
+    /**
+     * Die Methode entfernt Punkte, die eine Delle auf dem angegebenen
+     * Polygonabschnitt darstellen.
+     * 
+     * @param polygon
+     *            das Polygon
+     * @param iFirst
+     *            Startpunkt des Polygonabschnitts
+     * @param iLast
+     *            Endpunkt des Polygonabschnitts
+     */
+    private void eliminateCornersFromPolygonIntercept(Point[] polygon,
+            int iFirst, int iLast) {
+
+        // letztes Teilstueck verursacht einen Ueberlauf des Arrayindex, daher
+        // abfangen
+        if (iLast == 0 && iFirst != 0) {
+            // "Dellen" bis zum letzten Array-Element entfernen
+            eliminateCornersFromPolygonIntercept(polygon, iFirst,
+                    polygon.length - 1);
+            // letztes Array-Element auf Delle pruefen
+            for (int j = polygon.length - 2; j >= iFirst; j--) {
+                if (polygon[j] != null
+                        && determinantABC(polygon[j], polygon[0],
+                                polygon[polygon.length - 1]) <= 0) {
+                    polygon[polygon.length - 1] = null;
+                    break;
+                }
+            }
+        } else {
+            // alle Punkte zwischen den beiden uebergebenen Extrempunkten mit
+            // Links-Rechts-Test auf "Delle" pruefen
+            for (int i = iFirst + 1; i < iLast; i++) {
+                // vom zu pruefenden Punkt zuruecklaufen bis Extrempunkt
+                // erreicht
+                // wird oder "Delle" bewiesen ist; im letzten Fall Punkt
+                // entfernen
+                for (int j = i - 1; j >= iFirst; j--) {
+                    if (polygon[j] != null
+                            && determinantABC(polygon[j], polygon[i + 1],
+                                    polygon[i]) <= 0) {
+                        polygon[i] = null;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -319,9 +416,12 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      *         Geraden von A nach B liegt
      */
     private long determinantABC(Point a, Point b, Point c) {
-        return ((c.getxPos() - a.getxPos()) * (c.getyPos() + a.getyPos()))
-                + ((b.getxPos() - c.getxPos()) * (b.getyPos() + c.getyPos()))
-                + ((a.getxPos() - b.getxPos()) * (a.getyPos() + b.getyPos()));
+        return ((long) (c.getxPos() - a.getxPos()) * (long) (c.getyPos() + a
+                .getyPos()))
+                + ((long) (b.getxPos() - c.getxPos()) * (long) (b.getyPos() + c
+                        .getyPos()))
+                + ((long) (a.getxPos() - b.getxPos()) * (long) (a.getyPos() + b
+                        .getyPos()));
     }
 
     /*

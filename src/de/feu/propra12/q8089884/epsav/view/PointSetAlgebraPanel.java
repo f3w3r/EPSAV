@@ -111,7 +111,7 @@ public class PointSetAlgebraPanel extends JPanel implements
      *            das Grafikobjekt
      */
     private void drawConvexHull(Graphics2D g2) {
-        Point[] convexHull = pointSetAlgebra.getContourPolygon();
+        Point[] convexHull = pointSetAlgebra.getConvexHull();
         // Punkte des Polygons verbinden
         if (convexHull != null)
             for (int i = 0; i < convexHull.length - 1; i++) {
