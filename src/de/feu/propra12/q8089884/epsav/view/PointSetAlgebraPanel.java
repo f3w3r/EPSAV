@@ -124,7 +124,7 @@ public class PointSetAlgebraPanel extends JPanel implements
                 // werden, wenn dieser gerade bewegt wird
                 if (isUserMovingPoint()
                         && ((convexHull[i] == selectedPoint) || (convexHull[i + 1] == selectedPoint)))
-                    g2.setColor(Color.RED);
+                    g2.setColor(Color.BLUE);
                 else
                     g2.setColor(Color.BLACK);
                 g2.drawLine(convexHull[i].getxPos(), convexHull[i].getyPos(),
@@ -135,7 +135,7 @@ public class PointSetAlgebraPanel extends JPanel implements
                 if (convexHull.length > 2) {
                     if (isUserMovingPoint()
                             && ((convexHull[convexHull.length - 1] == selectedPoint) || (convexHull[0] == selectedPoint)))
-                        g2.setColor(Color.RED);
+                        g2.setColor(Color.BLUE);
                     else
                         g2.setColor(Color.BLACK);
                     g2.drawLine(convexHull[convexHull.length - 1].getxPos(),
@@ -143,8 +143,6 @@ public class PointSetAlgebraPanel extends JPanel implements
                             convexHull[0].getxPos(), convexHull[0].getyPos());
                 }
             }
-        // TODO wenn gerade ein Punkt bewegt wird, sollen dieser, sowie die zu
-        // ihm führenden Kanten, rot dargestellt werden (userMovingPoint)
     }
 
     /**
