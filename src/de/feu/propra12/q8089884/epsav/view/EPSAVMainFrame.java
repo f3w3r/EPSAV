@@ -39,11 +39,6 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     private LinkedList<IPointSetOperationListener> operationListeners = new LinkedList<IPointSetOperationListener>();
 
     /**
-     * zeigt an, ob der Benutzer gerade einen Punkt verschiebt
-     */
-    private boolean userMovingPoint = false;
-
-    /**
      * die Datei, in die zuletzt geschrieben wurde
      */
     private File fileLeastSavedTo = null;
@@ -654,7 +649,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             if (selectedPoint != null) {
                 pPointSetAlgebra.setdX(selectedPoint.getxPos() - cursorX);
                 pPointSetAlgebra.setdY(selectedPoint.getyPos() - cursorY);
-                userMovingPoint = true;
+                pPointSetAlgebra.setUserMovingPoint(true);
             }
             refresh();
         }
@@ -670,7 +665,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     public void mouseReleased(MouseEvent e) {
         pPointSetAlgebra.setdX(0);
         pPointSetAlgebra.setdY(0);
-        userMovingPoint = false;
+        pPointSetAlgebra.setUserMovingPoint(false);
     }
 
     /*
@@ -682,7 +677,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
      */
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (userMovingPoint) {
+        if (pPointSetAlgebra.isUserMovingPoint()) {
             // neue Punktposition aus alter und Mauszeigerposition erzeugen
             Point newPos = new Point(e.getX() + pPointSetAlgebra.getdX(),
                     e.getY() + pPointSetAlgebra.getdY());

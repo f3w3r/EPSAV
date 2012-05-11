@@ -31,6 +31,11 @@ public class PointSetAlgebraPanel extends JPanel implements
     private Point selectedPoint = null;
 
     /**
+     * zeigt an, ob der Benutzer gerade einen Punkt verschiebt
+     */
+    private boolean userMovingPoint = false;
+
+    /**
      * der Abstand zwischen ausgewahltem Punkt und Mauszeiger auf der x-Achse
      * --> P.x - Cursor.x
      */
@@ -115,14 +120,24 @@ public class PointSetAlgebraPanel extends JPanel implements
         // Punkte des Polygons verbinden
         if (convexHull != null)
             for (int i = 0; i < convexHull.length - 1; i++) {
-                g2.setColor(Color.BLACK);
+                // Linien zum gerade ausgewaehlten Punkt sollen rot gezeichnet
+                // werden, wenn dieser gerade bewegt wird
+                if (isUserMovingPoint()
+                        && ((convexHull[i] == selectedPoint) || (convexHull[i + 1] == selectedPoint)))
+                    g2.setColor(Color.RED);
+                else
+                    g2.setColor(Color.BLACK);
                 g2.drawLine(convexHull[i].getxPos(), convexHull[i].getyPos(),
                         convexHull[i + 1].getxPos(),
                         convexHull[i + 1].getyPos());
 
                 // Polygon schliessen
                 if (convexHull.length > 2) {
-                    g2.setColor(Color.BLACK);
+                    if (isUserMovingPoint()
+                            && ((convexHull[convexHull.length - 1] == selectedPoint) || (convexHull[0] == selectedPoint)))
+                        g2.setColor(Color.RED);
+                    else
+                        g2.setColor(Color.BLACK);
                     g2.drawLine(convexHull[convexHull.length - 1].getxPos(),
                             convexHull[convexHull.length - 1].getyPos(),
                             convexHull[0].getxPos(), convexHull[0].getyPos());
@@ -256,5 +271,25 @@ public class PointSetAlgebraPanel extends JPanel implements
      */
     public void setdY(int dY) {
         this.dY = dY;
+    }
+
+    /**
+     * Die Methode gibt an, ob gerade ein Punkt bewegt wird.
+     * 
+     * @return wahr, wenn gerade ein Punkt bewegt wird
+     */
+    public boolean isUserMovingPoint() {
+        return userMovingPoint;
+    }
+
+    /**
+     * Die Methode legt fest, ob gerade ein Punkt bewegt wird.
+     * 
+     * @param userMovingPoint
+     *            wahr, wenn angezeigt werden soll, dass gerade ein Punkt bewegt
+     *            wird
+     */
+    public void setUserMovingPoint(boolean userMovingPoint) {
+        this.userMovingPoint = userMovingPoint;
     }
 }
