@@ -353,8 +353,8 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
                     EPointSetOperation.IMPORT_FROM_FILE, args));
             // Setzen der zuletzt genutzten Datei
             fileLeastSavedTo = f;
+            showPointSetAlgebraPanel();
         }
-        showPointSetAlgebraPanel();
     }
 
     /**

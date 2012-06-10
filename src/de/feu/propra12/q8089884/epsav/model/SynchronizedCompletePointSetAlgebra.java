@@ -326,7 +326,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
 
             System.out.println("konturpolygon:");
             for (int i = 0; i < contourPolygon.length; i++) {
-                System.out.println(contourPolygon[i]);
+                System.out.println(i + " : " + contourPolygon[i]);
             }
 
             System.out.println("west: " + contourPolygon[iWest]);
@@ -386,9 +386,8 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
             // Links-Rechts-Test auf "Delle" pruefen
             for (int i = iFirst + 1; i < iLast; i++) {
                 // vom zu pruefenden Punkt zuruecklaufen bis Extrempunkt
-                // erreicht
-                // wird oder "Delle" bewiesen ist; im letzten Fall Punkt
-                // entfernen
+                // erreicht wird oder "Delle" bewiesen ist; im letzten Fall
+                // Punkt entfernen
                 for (int j = i - 1; j >= iFirst; j--) {
                     if (polygon[j] != null
                             && determinantABC(polygon[j], polygon[i + 1],
@@ -416,12 +415,13 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      *         Geraden von A nach B liegt
      */
     private long determinantABC(Point a, Point b, Point c) {
-        return ((long) (c.getxPos() - a.getxPos()) * (long) (c.getyPos() + a
+        long result = ((long) (c.getxPos() - a.getxPos()) * (long) (c.getyPos() + a
                 .getyPos()))
                 + ((long) (b.getxPos() - c.getxPos()) * (long) (b.getyPos() + c
                         .getyPos()))
                 + ((long) (a.getxPos() - b.getxPos()) * (long) (a.getyPos() + b
                         .getyPos()));
+        return result;
     }
 
     /*

@@ -120,7 +120,7 @@ public class PointSetAlgebraPanel extends JPanel implements
         // Punkte des Polygons verbinden
         if (convexHull != null)
             for (int i = 0; i < convexHull.length - 1; i++) {
-                // Linien zum gerade ausgewaehlten Punkt sollen rot gezeichnet
+                // Linien zum gerade ausgewaehlten Punkt sollen blau gezeichnet
                 // werden, wenn dieser gerade bewegt wird
                 if (isUserMovingPoint()
                         && ((convexHull[i] == selectedPoint) || (convexHull[i + 1] == selectedPoint)))
