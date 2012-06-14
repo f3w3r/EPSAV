@@ -4,9 +4,12 @@
  */
 package de.feu.propra12.q8089884.epsav;
 
+import de.feu.propra12.interfaces.ISmallestCircleCalculator;
 import de.feu.propra12.q8089884.epsav.controller.SynchronizedPointSetController;
+import de.feu.propra12.q8089884.epsav.model.SmallestCircleCalculator;
 import de.feu.propra12.q8089884.epsav.model.SynchronizedCompletePointSetAlgebra;
 import de.feu.propra12.q8089884.epsav.view.EPSAVMainFrame;
+import de.feu.propra12.tester.Tester;
 
 /**
  * Die Klasse beinhaltet die Startroutine der EPSAV-Anwendung.
@@ -22,27 +25,41 @@ public class EPSAV {
      * Datenstrukturen. Dann wird das Hauptfenster der Anwendung sichtbar
      * gemacht.
      * 
+     * Bei übergebenem Parameter 't' wird die Testklasse der Bibliothek
+     * ProPraTester aufgerufen um die Rückgabewerte der PointSetAlgebra zu
+     * testen.
+     * 
      * @param args
      *            die Argumente zum Programmstart
      */
     public static void main(String[] args) {
 
-        // PointSetAlgebra erzeugen
-        SynchronizedCompletePointSetAlgebra pointSetAlgebra = new SynchronizedCompletePointSetAlgebra();
+        // bei Parameter 't' die Testklasse laden und Tests durchfuehren.
+        if (args.length > 0 && args[0].equals("-t")) {
+            ISmallestCircleCalculator calculator = new SmallestCircleCalculator();
+            Tester tester = new Tester(args, calculator);
+            System.out.println(tester.test());
 
-        // Controller erzeugen
-        SynchronizedPointSetController pointSetController = new SynchronizedPointSetController(
-                pointSetAlgebra);
+        }
+        // falls keine Parameter uebergeben wurden: Programm normal starten
+        else {
 
-        // View erzeugen
-        EPSAVMainFrame mainFrame = new EPSAVMainFrame(pointSetAlgebra);
+            // PointSetAlgebra erzeugen
+            SynchronizedCompletePointSetAlgebra pointSetAlgebra = new SynchronizedCompletePointSetAlgebra();
 
-        // Beobachtermuster zwischen View und Model etablieren
-        pointSetAlgebra.addPointSetChangedListener(mainFrame);
+            // Controller erzeugen
+            SynchronizedPointSetController pointSetController = new SynchronizedPointSetController(
+                    pointSetAlgebra);
 
-        // Beobachtermuster zwischen Controller und View etablieren
-        mainFrame.addPointSetOperationListener(pointSetController);
+            // View erzeugen
+            EPSAVMainFrame mainFrame = new EPSAVMainFrame(pointSetAlgebra);
 
+            // Beobachtermuster zwischen View und Model etablieren
+            pointSetAlgebra.addPointSetChangedListener(mainFrame);
+
+            // Beobachtermuster zwischen Controller und View etablieren
+            mainFrame.addPointSetOperationListener(pointSetController);
+        }
     }
 
 }
