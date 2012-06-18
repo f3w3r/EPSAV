@@ -257,32 +257,39 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
             // max-/min-Y Punkte in Konturlinien einfuegen
             for (int i = 1; i < iLast; i++) {
 
-                if (points[i].getyPos() <= leftMinY.getyPos()) {
+                if (points[i].getyPos() < leftMinY.getyPos()) {
                     leftMinY = points[i];
                     wno.add(leftMinY);
                 }
-                if (points[iLast - i].getyPos() <= rightMinY.getyPos()) {
+                if (points[iLast - i].getyPos() < rightMinY.getyPos()) {
                     rightMinY = points[iLast - i];
                     wno.add(rightMinY);
                 }
-                if (points[i].getyPos() >= leftMaxY.getyPos()) {
+                if (points[i].getyPos() > leftMaxY.getyPos()) {
                     leftMaxY = points[i];
                     wso.add(leftMaxY);
                 }
-                if (points[iLast - i].getyPos() >= rightMaxY.getyPos()) {
+                if (points[iLast - i].getyPos() > rightMaxY.getyPos()) {
                     rightMaxY = points[iLast - i];
                     wso.add(rightMaxY);
                 }
             }
 
-            // oberen und unteren Teil des Konturpolygons aneinander haengen
+            // oberen und unteren Teil des Konturpolygons aneinander haengen;
+            // kein Punkt darf doppelt vorkommen
+            // TODO ...eigentlich sollte das Konturpolygon auch doppelte Punkte
+            // enthalten dürfen...;-)
             LinkedList<Point> result = new LinkedList<Point>();
             for (Iterator<Point> iterator = wno.iterator(); iterator.hasNext();) {
-                result.add(iterator.next());
+                Point wnoNext = iterator.next();
+                if (!result.contains(wnoNext))
+                    result.add(wnoNext);
             }
             for (Iterator<Point> iterator = wso.descendingIterator(); iterator
                     .hasNext();) {
-                result.add(iterator.next());
+                Point wsoNext = iterator.next();
+                if (!result.contains(wsoNext))
+                    result.add(wsoNext);
             }
 
             return result.toArray(new Point[0]);
@@ -324,16 +331,6 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
                     iEast = i;
             }
 
-            System.out.println("konturpolygon:");
-            for (int i = 0; i < contourPolygon.length; i++) {
-                System.out.println(i + " : " + contourPolygon[i]);
-            }
-
-            System.out.println("west: " + contourPolygon[iWest]);
-            System.out.println("nord: " + contourPolygon[iNorth]);
-            System.out.println("ost: " + contourPolygon[iEast]);
-            System.out.println("sued: " + contourPolygon[iSouth]);
-
             // "Dellen" aus den Polygonabschnitten entfernen
             eliminateCornersFromPolygonIntercept(contourPolygon, iWest, iNorth);
             eliminateCornersFromPolygonIntercept(contourPolygon, iNorth, iEast);
@@ -346,6 +343,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
                 if (contourPolygon[i] != null)
                     result.add(contourPolygon[i]);
             }
+
             return result.toArray(new Point[0]);
 
         } else
@@ -422,7 +420,6 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
 
         System.out.println();
 
-        System.out.println(psa.determinantABC(points[1], points[2], points[7]));
     }
 
     /**

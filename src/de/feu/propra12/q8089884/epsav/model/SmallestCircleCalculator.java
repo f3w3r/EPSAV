@@ -92,7 +92,7 @@ public class SmallestCircleCalculator implements ISmallestCircleCalculator {
      */
     @Override
     public int[][] getConvexHull() {
-        Point[] points = psa.getAllPoints();
+        Point[] points = psa.getConvexHull();
         int[][] result = new int[points.length][2];
         // alle Punkte in Koordinatenarray transformieren
         for (int i = 0; i < points.length; i++) {
