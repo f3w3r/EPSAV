@@ -407,21 +407,6 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
         }
     }
 
-    public static void main(String[] args) {
-        SynchronizedCompletePointSetAlgebra psa = new SynchronizedCompletePointSetAlgebra();
-
-        Point[] points = { null, new Point(0, 100), new Point(200, 100), null,
-                new Point(100, 0), null, null, new Point(100, 200),
-                new Point(100, 100), new Point(75, 75) };
-
-        for (int i = 0; i < points.length; i++) {
-            System.out.println(i + ": " + points[i]);
-        }
-
-        System.out.println();
-
-    }
-
     /**
      * Die Methode bildet ein Array auf einen Ring ab und gibt zu einer Position
      * die Position des Vorgaengers im Ring zurueck. Gibt es keine anderen
