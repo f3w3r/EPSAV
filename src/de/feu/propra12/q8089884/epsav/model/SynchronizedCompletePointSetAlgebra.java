@@ -366,44 +366,116 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
     private void eliminateCornersFromPolygonIntercept(Point[] polygon,
             int iFirst, int iLast) {
 
-        // letztes Teilstueck verursacht einen Ueberlauf des Arrayindex, daher
-        // abfangen
-        if (iLast == 0 && iFirst != 0) {
-            // "Dellen" bis zum letzten Array-Element entfernen
-            eliminateCornersFromPolygonIntercept(polygon, iFirst,
-                    polygon.length - 1);
-            // letztes Array-Element auf Delle pruefen
-            for (int j = polygon.length - 2; j >= iFirst; j--) {
-                if (polygon[j] != null
-                        && determinantABC(polygon[j], polygon[0],
-                                polygon[polygon.length - 1]) <= 0) {
-                    polygon[polygon.length - 1] = null;
-                    break;
-                }
-            }
-        } else {
-            // alle Punkte zwischen den beiden uebergebenen Extrempunkten mit
-            // Links-Rechts-Test auf "Delle" pruefen
-            for (int i = iFirst + 1; i < iLast; i++) {
-                // vom zu pruefenden Punkt zuruecklaufen bis Extrempunkt
-                // erreicht wird oder "Delle" bewiesen ist; im letzten Fall
-                // Punkt entfernen
-                for (int j = i - 1; j >= iFirst; j--) {
-                    if (polygon[j] != null
-                            && determinantABC(polygon[j], polygon[i + 1],
-                                    polygon[i]) <= 0) {
-                        polygon[i] = null;
-                        break;
+        int pLength = polygon.length;
+        int diff = (iLast - iFirst + pLength) % pLength;
+
+        // es koennen nur Ecken entfernt werden, wenn mehr als drei Punkte den
+        // Abschnitt bilden
+        if (diff >= 2) {
+            // laufe vom zweiten Punkt des Polygonabschnitts bis zum vorletzten
+            // Spezialfall Arrayüberlauf --> wird hier stets mittels MODULO
+            // abfangen
+            for (int i = 1; i < diff; i++) {
+
+                int pos = (iFirst + i) % pLength;
+                // ersten existierenden Vorgaenger und Nachfolger merken
+                int predecessor = getPredecessorInRingArray(polygon, pos);
+                int successor = getSuccessorInRingArray(polygon, pos);
+
+                // mit direktem Vorgeaenger und Nachfolger auf lokale Delle
+                // pruefen
+                if (determinantABC(polygon[predecessor], polygon[successor],
+                        polygon[pos]) >= 0) {
+                    // gehe zurueck bis zum ersten Punkt P(j) für den der
+                    // Nachfolger des Dellenpunktes P(i) rechts der Geraden
+                    // durch P(j-1) und P(j) liegt
+                    for (int j = predecessor; j >= iFirst; j--) {
+                        if (polygon[j] != null
+                                && determinantABC(
+                                        polygon[getPredecessorInRingArray(
+                                                polygon, j)], polygon[j],
+                                        polygon[successor]) >= 0) {
+                            // entferne alle Punkte zwischen P(j) und dem
+                            // Nachfolger von P(i)
+                            for (int k = 1; k < (successor - j + pLength)
+                                    % pLength; k++) {
+                                polygon[(j + k) % pLength] = null;
+                            }
+                            break;
+                        }
                     }
                 }
             }
         }
     }
 
+    public static void main(String[] args) {
+        SynchronizedCompletePointSetAlgebra psa = new SynchronizedCompletePointSetAlgebra();
+
+        Point[] points = { null, new Point(0, 100), new Point(200, 100), null,
+                new Point(100, 0), null, null, new Point(100, 200),
+                new Point(100, 100), new Point(75, 75) };
+
+        for (int i = 0; i < points.length; i++) {
+            System.out.println(i + ": " + points[i]);
+        }
+
+        System.out.println();
+
+        System.out.println(psa.determinantABC(points[1], points[2], points[7]));
+    }
+
+    /**
+     * Die Methode bildet ein Array auf einen Ring ab und gibt zu einer Position
+     * die Position des Vorgaengers im Ring zurueck. Gibt es keine anderen
+     * Elemente mehr im Ring wird -1 zurueckgegeben.
+     * 
+     * @param ringArray
+     *            das Ringarray
+     * @param pos
+     *            die Position
+     * @return die Position des Vorgaengers
+     */
+    private int getPredecessorInRingArray(Object[] ringArray, int pos) {
+        int result = -1;
+        int l = ringArray.length;
+        for (int i = 1; i < l; i++) {
+            if (ringArray[(pos - i + l) % l] != null) {
+                result = (pos - i + l) % l;
+                break;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Die Methode bildet ein Array auf einen Ring ab und gibt zu einer Position
+     * die Position des Nachfolgers im Ring zurueck. Gibt es keine anderen
+     * Elemente mehr im Ring wird -1 zurueckgegeben.
+     * 
+     * @param ringArray
+     *            das Ringarray
+     * @param pos
+     *            die Position
+     * @return die Position des Nachfolgers
+     */
+    private int getSuccessorInRingArray(Object[] ringArray, int pos) {
+        int result = -1;
+        int l = ringArray.length;
+        for (int i = 1; i < l; i++) {
+            if (ringArray[(pos + i) % l] != null) {
+                result = (pos + i) % l;
+                break;
+            }
+        }
+        return result;
+    }
+
     /**
      * Die Methode berechnet die Determinante der Punkte A, B und C. Der
-     * Rückgabewert ist > 0 wenn C links, < 0 wenn C rechts und = 0 wenn C auf
-     * der Geraden von A nach B liegt.
+     * Rückgabewert ist < 0 wenn C links, > 0 wenn C rechts und = 0 wenn C auf
+     * der Geraden von A nach B liegt. Die Orientierung ist hierbei x von links
+     * nach rechts aufsteigend und y von oben nach unten aufsteigend.
      * 
      * @param a
      *            der Punkt A
@@ -411,7 +483,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      *            der Punkt B
      * @param c
      *            der Punkt C
-     * @return > 0 wenn C links, < 0 wenn C rechts und = 0 wenn C auf der
+     * @return < 0 wenn C links, > 0 wenn C rechts und = 0 wenn C auf der
      *         Geraden von A nach B liegt
      */
     private long determinantABC(Point a, Point b, Point c) {

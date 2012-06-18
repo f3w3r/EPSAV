@@ -25,7 +25,7 @@ public class EPSAV {
      * Datenstrukturen. Dann wird das Hauptfenster der Anwendung sichtbar
      * gemacht.
      * 
-     * Bei übergebenem Parameter 't' wird die Testklasse der Bibliothek
+     * Bei übergebenem Parameter '-t' wird die Testklasse der Bibliothek
      * ProPraTester aufgerufen um die Rückgabewerte der PointSetAlgebra zu
      * testen.
      * 
@@ -34,7 +34,7 @@ public class EPSAV {
      */
     public static void main(String[] args) {
 
-        // bei Parameter 't' die Testklasse laden und Tests durchfuehren.
+        // bei Parameter '-t' die Testklasse laden und Tests durchfuehren.
         if (args.length > 0 && args[0].equals("-t")) {
             ISmallestCircleCalculator calculator = new SmallestCircleCalculator();
             Tester tester = new Tester(args, calculator);
