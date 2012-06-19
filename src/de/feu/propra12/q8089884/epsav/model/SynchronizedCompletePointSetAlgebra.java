@@ -381,9 +381,16 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
                 int successor = getSuccessorInRingArray(polygon, pos);
 
                 // mit direktem Vorgeaenger und Nachfolger auf lokale Delle
-                // pruefen
-                if (determinantABC(polygon[predecessor], polygon[successor],
-                        polygon[pos]) >= 0) {
+                // und Kolinearitaet pruefen
+                long determinant = determinantABC(polygon[predecessor],
+                        polygon[successor], polygon[pos]);
+
+                // bei Kolinearitaet Punkt entfernen
+                if (determinant == 0)
+                    polygon[pos] = null;
+
+                // bei Delle
+                else if (determinant > 0) {
                     // gehe zurueck bis zum ersten Punkt P(j) für den der
                     // Nachfolger des Dellenpunktes P(i) rechts der Geraden
                     // durch P(j-1) und P(j) liegt
@@ -392,7 +399,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
                                 && determinantABC(
                                         polygon[getPredecessorInRingArray(
                                                 polygon, j)], polygon[j],
-                                        polygon[successor]) >= 0) {
+                                        polygon[successor]) > 0) {
                             // entferne alle Punkte zwischen P(j) und dem
                             // Nachfolger von P(i)
                             for (int k = 1; k < (successor - j + pLength)
