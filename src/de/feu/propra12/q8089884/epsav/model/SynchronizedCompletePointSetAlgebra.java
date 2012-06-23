@@ -277,7 +277,7 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
 
             // oberen und unteren Teil des Konturpolygons aneinander haengen;
             // kein Punkt darf doppelt vorkommen
-            // TODO ...eigentlich sollte das Konturpolygon auch doppelte Punkte
+            // TODO ...eigentlich sollte das Konturpolygon auch kolineare Punkte
             // enthalten dürfen...;-)
             LinkedList<Point> result = new LinkedList<Point>();
             for (Iterator<Point> iterator = wno.iterator(); iterator.hasNext();) {

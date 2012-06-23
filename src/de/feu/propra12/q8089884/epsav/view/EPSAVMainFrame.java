@@ -110,6 +110,36 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
     private JMenuItem miRedo;
 
     /**
+     * Bearbeiten-Untermenue -- ZufaelligePunkte
+     */
+    private JMenu mRandomPoints;
+
+    /**
+     * ZufaelligePunkte-Menueeintrag: 10
+     */
+    private JMenuItem mi10;
+
+    /**
+     * ZufaelligePunkte-Menueeintrag: 50
+     */
+    private JMenuItem mi50;
+
+    /**
+     * ZufaelligePunkte-Menueeintrag: 100
+     */
+    private JMenuItem mi100;
+
+    /**
+     * ZufaelligePunkte-Menueeintrag: 500
+     */
+    private JMenuItem mi500;
+
+    /**
+     * ZufaelligePunkte-Menueeintrag: 1000
+     */
+    private JMenuItem mi1000;
+
+    /**
      * Hilfe-Menue
      */
     private JMenu mHelp;
@@ -247,6 +277,39 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
 
         }
 
+        mEdit.addSeparator();
+
+        // Bearbeiten-Untermenue ZufaelligePunkte
+        mRandomPoints = new JMenu("Zufällige Punkte erzeugen");
+        mRandomPoints.setMnemonic(KeyEvent.VK_R);
+
+        // --- Bearbeiten --- ZufaelligePunkte-10
+        mi10 = new JMenuItem("10");
+        mi10.addActionListener(this);
+        mRandomPoints.add(mi10);
+
+        // --- Bearbeiten --- ZufaelligePunkte-50
+        mi50 = new JMenuItem("50");
+        mi50.addActionListener(this);
+        mRandomPoints.add(mi50);
+
+        // --- Bearbeiten --- ZufaelligePunkte-100
+        mi100 = new JMenuItem("100");
+        mi100.addActionListener(this);
+        mRandomPoints.add(mi100);
+
+        // --- Bearbeiten --- ZufaelligePunkte-500
+        mi500 = new JMenuItem("500");
+        mi500.addActionListener(this);
+        mRandomPoints.add(mi500);
+
+        // --- Bearbeiten --- ZufaelligePunkte-1000
+        mi1000 = new JMenuItem("1000");
+        mi1000.addActionListener(this);
+        mRandomPoints.add(mi1000);
+
+        mEdit.add(mRandomPoints);
+
         mb.add(mEdit);
 
         // Menue Hilfe
@@ -293,7 +356,6 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         if (eventSource == miInfo)
             info();
 
-        // TODO weitere Menüeinträge verfügbar machen
     }
 
     /**
