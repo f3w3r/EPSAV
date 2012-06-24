@@ -69,6 +69,11 @@ public class SynchronizedPointSetController implements
             case CLEAR_POINTSET:
                 pointSetAlgebra.clear();
                 break;
+            case ADD_RANDOM_POINTS:
+                pointSetAlgebra.addRandomPoints((Integer) args[0],
+                        (Integer) args[1], (Integer) args[2],
+                        (Integer) args[3], (Integer) args[4]);
+                break;
             case IMPORT_FROM_FILE:
                 pointSetAlgebra.importPointsFromFile((File) args[0]);
                 break;

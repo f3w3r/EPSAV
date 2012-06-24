@@ -34,6 +34,11 @@ public enum EPointSetOperation {
     CLEAR_POINTSET,
 
     /**
+     * zufaellige Punkte hinzufuegen
+     */
+    ADD_RANDOM_POINTS,
+
+    /**
      * Punkte aus Datei importieren
      */
     IMPORT_FROM_FILE,
