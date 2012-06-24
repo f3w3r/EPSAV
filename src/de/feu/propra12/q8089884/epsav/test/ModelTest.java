@@ -166,12 +166,19 @@ public class ModelTest {
         // TODO Operationen auf Punktmengen testen
 
         // Konturpolygon ausgeben
-        Point[] points2 = { new Point(0, 0), new Point(10, 10), new Point(10, 0), new Point(0, 20), new Point(0, 30) };
+        Point[] points2 = { new Point(0, 0), new Point(10, 10),
+                new Point(10, 0), new Point(0, 20), new Point(0, 30) };
         psa.addPoints(points2);
         System.out.println("Konturpolygon:");
         for (Point p : psa.getContourPolygon()) {
             System.out.println(p);
         }
+
+        // ADDRANDOMPOINTS-Test
+        psa.clear();
+        System.out.println();
+        psa.addRandomPoints(10, -100, 100, -100, 100);
+        System.out.println("addRandomPoints-Test:\n" + psa);
 
     }
 }

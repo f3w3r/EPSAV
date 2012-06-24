@@ -45,6 +45,24 @@ public interface IRWPointSet extends IROPointSet {
     public void addPoints(Point[] points);
 
     /**
+     * Die Methode fuegt der Punktemenge eine Anzahl zufaelliger Punkte
+     * innerhalb gegebener Koordinatenschranken hinzu.
+     * 
+     * @param numberOfPoints
+     *            die Anzahl
+     * @param xLowerLimit
+     *            untere Schranke fuer x-Koordinaten
+     * @param xUpperLimit
+     *            obere Schranke fuer x-Koordinaten
+     * @param yLowerLimit
+     *            untere Schranke fuer y-Koordinaten
+     * @param yUpperLimit
+     *            obere Schranke fuer y-Koordinaten
+     */
+    public void addRandomPoints(int numberOfPoints, int xLowerLimit,
+            int xUpperLimit, int yLowerLimit, int yUpperLimit);
+
+    /**
      * Die Methode entfernt einen Punkt aus der Punktmenge.
      * 
      * @param p

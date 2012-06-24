@@ -570,6 +570,36 @@ public class SynchronizedCompletePointSetAlgebra implements IRWPointSetAlgebra,
      * (non-Javadoc)
      * 
      * @see
+     * de.feu.propra12.q8089884.epsav.model.interfaces.IRWPointSet#addRandomPoints
+     * (int, int, int, int, int)
+     */
+    @Override
+    public synchronized void addRandomPoints(int numberOfPoints,
+            int xLowerLimit, int xUpperLimit, int yLowerLimit, int yUpperLimit) {
+
+        // x- und y-Distanz erfassen
+        int xRange = xUpperLimit - xLowerLimit + 1;
+        int yRange = yUpperLimit - yLowerLimit + 1;
+
+        Random random = new Random();
+        Point tempPoint;
+
+        // angegebene Anzahl an zufaelligen Punkten hinzufuegen
+        // Zufallszahlen im Rahmen der Distanzen erzeugen und als Offset zur
+        // unteren Schranke addieren
+        for (int i = 0; i < numberOfPoints; i++) {
+            do {
+                tempPoint = new Point(xLowerLimit + random.nextInt(xRange),
+                        yLowerLimit + random.nextInt(yRange));
+            } while (contains(tempPoint));
+            addPoint(tempPoint);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * de.feu.propra12.q8089884.epsav.model.interfaces.IRWPointSet#movePoint
      * (de.feu.propra12.q8089884.epsav.util.Point,
      * de.feu.propra12.q8089884.epsav.util.Point)
