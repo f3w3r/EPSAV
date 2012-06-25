@@ -172,7 +172,7 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
         // anpassen
         // Hauptfenster anpassen
         setLayout(null);
-        setSize(800, 590);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -353,6 +353,16 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
             undo();
         if (eventSource == miRedo)
             redo();
+        if (eventSource == mi10)
+            addRandomPoints(10);
+        if (eventSource == mi50)
+            addRandomPoints(50);
+        if (eventSource == mi100)
+            addRandomPoints(100);
+        if (eventSource == mi500)
+            addRandomPoints(500);
+        if (eventSource == mi1000)
+            addRandomPoints(1000);
         if (eventSource == miInfo)
             info();
 
@@ -485,6 +495,38 @@ public class EPSAVMainFrame extends JFrame implements IPointSetOperationSource,
                 && ((IUndoableRedoable) pointSetAlgebra).isRedoable())
             fireOperationEvent(new PointSetOperationEvent(this,
                     EPointSetOperation.REDO, null));
+    }
+
+    /**
+     * Methode zum Erzeugen einer gegebenen Anzahl von zufaelligen Punkten.
+     * 
+     * @param numberOfPoints
+     *            die Anzahl der Punkte
+     */
+    private void addRandomPoints(int numberOfPoints) {
+        // bei nicht leerer Punktmenge fragen, ob die Punkte in der Datei
+        // der Punktmenge hinzugefuegt werden sollen
+        if (!pointSetAlgebra.isEmpty()) {
+            int addPointsToSet = JOptionPane
+                    .showConfirmDialog(
+                            this,
+                            "Sollen die zufälligen Punkte der bestehenden Punktmenge hinzugefuegt werden?",
+                            "Punktmenge erweitern?",
+                            JOptionPane.YES_NO_CANCEL_OPTION);
+            // bei "Abbrechen" zufaelligePunkteHinzufuegen-Methode verlassen
+            if (addPointsToSet == JOptionPane.CANCEL_OPTION)
+                return;
+
+            // falls Punkte nicht hinzugefuegt werden sollen: neue Punktmenge
+            // anlegen
+            else if (addPointsToSet == JOptionPane.NO_OPTION)
+                newPointSet();
+        }
+        Object[] args = { numberOfPoints, 10, pPointSetAlgebra.getWidth() - 10,
+                10, pPointSetAlgebra.getHeight() - 10 };
+        fireOperationEvent(new PointSetOperationEvent(this,
+                EPointSetOperation.ADD_RANDOM_POINTS, args));
+        showPointSetAlgebraPanel();
     }
 
     /**

@@ -59,8 +59,8 @@ public class PointSetAlgebraPanel extends JPanel implements
         this.pointSetAlgebra = pointSetAlgebra;
 
         setLayout(null);
-        setSize(700, 450);
-        setBounds(80, 45, 850, 450);
+        setSize(600, 400);
+        setBounds(50, 50, 650, 450);
         setVisible(true);
         setFocusable(true);
     }
